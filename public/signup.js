@@ -73,7 +73,7 @@ document.getElementById('my-signup-form').addEventListener('submit', async funct
 
     try {
         // 2. Request OTP Code from Server
-        const response = await fetch('http://localhost:3000/api/send-verification', {
+        const response = await fetch('https://trailbliss.onrender.com/api/send-verification', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: emailValue })
@@ -117,7 +117,7 @@ document.getElementById('my-signup-form').addEventListener('submit', async funct
 // ==========================================
 async function registerUser(email, password, role) {
     try {
-        const response = await fetch('https://trailbliss-project.onrender.com:${PORT}/api/register', {
+        const response = await fetch('https://trailbliss.onrender.com/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, role })
