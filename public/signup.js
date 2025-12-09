@@ -1,5 +1,5 @@
 // ==========================================
-// 1. BACKGROUND SLIDESHOW LOGIC (KEEP THIS)
+// 1. BACKGROUND SLIDESHOW LOGIC
 // ==========================================
 const indianHeritageImages = [
     'https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=1920&auto=format&fit=crop',
@@ -37,7 +37,7 @@ setInterval(rotateBackgroundImages, 5000);
 
 
 // ==========================================
-// 2. ROLE SELECTION LOGIC (KEEP THIS)
+// 2. ROLE SELECTION LOGIC
 // ==========================================
 let selectedRole = 'tourist';
 
@@ -57,7 +57,7 @@ function setRole(roleName) {
 
 
 // ==========================================
-// 3. NEW FORM HANDLING (VERIFICATION REMOVED)
+// 3. FORM HANDLING (Direct Registration)
 // ==========================================
 document.getElementById('my-signup-form').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -83,8 +83,7 @@ document.getElementById('my-signup-form').addEventListener('submit', async funct
 // 4. REGISTRATION FUNCTION
 // ==========================================
 async function registerUser(email, password, role) {
-    // NOTE: Ensure this URL matches your actual live server URL
-    // If testing locally, use http://localhost:3000/api/register
+    // UPDATED URL: Using trailbliss.onrender.com
     const API_URL = 'https://trailbliss.onrender.com/api/register'; 
 
     try {
