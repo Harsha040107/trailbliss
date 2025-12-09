@@ -31,7 +31,6 @@ function rotateBackgroundImages() {
     slides[currentSlideIndex].classList.add('visibleSlide');
 }
 
-// Initialize and start timer
 initializeBackgrounds();
 setInterval(rotateBackgroundImages, 5000);
 
@@ -57,34 +56,34 @@ function setRole(roleName) {
 
 
 // ==========================================
-// 3. FORM HANDLING (Direct Registration)
+// 3. FORM HANDLING
 // ==========================================
-document.getElementById('my-signup-form').addEventListener('submit', async function(event) {
-    event.preventDefault();
+const signupForm = document.getElementById('my-signup-form');
+if (signupForm) {
+    signupForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-    const emailValue = document.getElementById('user-email').value;
-    const passwordValue = document.getElementById('user-password').value;
-    const submitBtn = document.querySelector('.submit-button');
-    const originalBtnText = submitBtn.innerText;
+        const emailValue = document.getElementById('user-email').value;
+        const passwordValue = document.getElementById('user-password').value;
+        const submitBtn = document.querySelector('.submit-button');
+        const originalBtnText = submitBtn.innerText;
 
-    // 1. Notify user we are processing
-    submitBtn.innerText = "Creating Account...";
-    submitBtn.disabled = true;
+        submitBtn.innerText = "Creating Account...";
+        submitBtn.disabled = true;
 
-    // 2. Direct Registration (No OTP Check)
-    await registerUser(emailValue, passwordValue, selectedRole);
+        await registerUser(emailValue, passwordValue, selectedRole);
 
-    submitBtn.innerText = originalBtnText;
-    submitBtn.disabled = false;
-});
-
+        submitBtn.innerText = originalBtnText;
+        submitBtn.disabled = false;
+    });
+}
 
 // ==========================================
 // 4. REGISTRATION FUNCTION
 // ==========================================
 async function registerUser(email, password, role) {
-    // UPDATED URL: Using trailbliss.onrender.com
-    const API_URL = 'https://trailbliss.onrender.com/api/register'; 
+    // FIX: Use relative path so it works on Localhost AND Render
+    const API_URL = '/api/register'; 
 
     try {
         const response = await fetch(API_URL, {
