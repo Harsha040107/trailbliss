@@ -204,9 +204,9 @@ app.delete('/api/spots/:id', async (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`Server running at https://trailbliss-project.onrender.com:${PORT}`);
-    console.log(`- Login Page:  https://trailbliss-project.onrender.com:${PORT}/log.html`);
-    console.log(`- Website:     https://trailbliss-project.onrender.com:${PORT}/tourist.html`);
+    console.log(`Server running at https://trailbliss.onrender.com:${PORT}`);
+    console.log(`- Login Page:  https://trailbliss.onrender.com:${PORT}/log.html`);
+    console.log(`- Website:     https://trailbliss.onrender.com:${PORT}/tourist.html`);
 });
 
 const nodemailer = require('nodemailer');
