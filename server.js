@@ -34,17 +34,13 @@ const spotSchema = new mongoose.Schema({
     category: String,
     image: String,
     desc: String,
-    lat: Number,  // <--- ADD THIS
+    lat: Number,
     lng: Number
 });
 const TouristSpot = mongoose.model('TouristSpot', spotSchema);
 
 
-// At the top of server.js, ensure 'path' is required
-// const path = require('path'); 
-
 const storage = multer.diskStorage({
-    // CHANGE THIS LINE: Use path.join for absolute path
     destination: path.join(__dirname, 'public', 'uploads'),
     filename: function (req, file, cb) {
         cb(null, 'spot-' + Date.now() + path.extname(file.originalname));
@@ -54,9 +50,6 @@ const uploadDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
-// -------------------------------------------
-
-
 
 const upload = multer({
     storage: storage,
@@ -79,16 +72,15 @@ function checkFileType(file, cb) {
 }
 
 
+// --- REGISTRATION (Modified: No OTP Check required) ---
 app.post('/api/register', async (req, res) => {
     try {
         const { email, password, role } = req.body;
-
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ error: "User already exists with this email" });
         }
-
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -113,17 +105,14 @@ app.post('/api/login', async (req, res) => {
     try {
         const { email, password, role } = req.body;
 
-
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ error: "User not found" });
         }
 
-
         if (user.role !== role) {
             return res.status(403).json({ error: `Please log in via the ${user.role} tab.` });
         }
-
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
@@ -140,7 +129,6 @@ app.post('/api/login', async (req, res) => {
 });
 
 
-
 app.get('/api/spots', async (req, res) => {
     try {
         const spots = await TouristSpot.find();
@@ -152,18 +140,14 @@ app.get('/api/spots', async (req, res) => {
 });
 
 app.post('/api/spots', (req, res) => {
-    // We wrap upload.single in a function to catch errors manually
     const uploadFunc = upload.single('image');
 
     uploadFunc(req, res, async (err) => {
-        // 1. CATCH MULTER ERRORS (The missing piece)
         if (err) {
             console.error("Upload Error:", err);
-            // This sends the specific error (e.g. "Error: Images Only!") to the browser
             return res.status(400).json({ error: err.message || err });
         }
 
-        // 2. Regular Logic
         try {
             if (!req.file) {
                 return res.status(400).json({ error: "No file uploaded or file rejected" });
@@ -177,7 +161,7 @@ app.post('/api/spots', (req, res) => {
                 category: req.body.category,
                 image: imagePath,
                 desc: req.body.desc,
-                lat: req.body.lat, // <--- ADD THIS
+                lat: req.body.lat,
                 lng: req.body.lng
             });
 
@@ -202,49 +186,6 @@ app.delete('/api/spots/:id', async (req, res) => {
     }
 });
 
-
-app.listen(PORT, () => {
-    console.log(`Server running at https://trailbliss.onrender.com`);
-    console.log(`- Login Page:  https://trailbliss.onrender.com/log.html`);
-    console.log(`- Website:     https://trailbliss.onrender.com/tourist.html`);
-});
-
-const nodemailer = require('nodemailer');
-
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: 'trailbliss.02@gmail.com',
-        pass: 'jwhy wwlm suat jixm'
-    }
-});
-
-
-app.post('/api/send-verification', async (req, res) => {
-    const { email } = req.body;
-
-
-    const verificationCode = Math.floor(100000 + Math.random() * 900000);
-
-    const mailOptions = {
-        from: 'Trail Bliss <trailbliss.02@gmail.com>',
-        to: email,
-        subject: 'Verify your Trail Bliss Account',
-        text: `Your verification code is: ${verificationCode}`
-    };
-
-    try {
-
-        await transporter.sendMail(mailOptions);
-        console.log(`Email sent to ${email} with code ${verificationCode}`);
-        res.json({ success: true, code: verificationCode });
-
-    } catch (error) {
-        console.error("Email Error:", error);
-        res.status(400).json({ error: "Could not send email. Address may be invalid." });
-    }
-});
 
 // 1. Create the Schema
 const feedbackSchema = new mongoose.Schema({
@@ -276,8 +217,6 @@ app.post('/api/feedback', async (req, res) => {
     }
 });
 
-// Optional: A quick way for you to VIEW feedback in your browser
-// Go to http://localhost:3000/api/view-feedback to see messages
 app.get('/api/view-feedback', async (req, res) => {
     const messages = await Feedback.find().sort({ date: -1 });
     res.json(messages);
@@ -300,9 +239,6 @@ const guideProfileSchema = new mongoose.Schema({
 const GuideProfile = mongoose.model('GuideProfile', guideProfileSchema);
 
 // 2. Booking Schema
-// [server.js]
-
-// 1. UPDATE Booking Schema (Add touristPhone)
 const bookingSchema = new mongoose.Schema({
     touristEmail: String,
     touristPhone: String,
@@ -311,7 +247,7 @@ const bookingSchema = new mongoose.Schema({
     date: String,
     type: String,
     status: { type: String, default: 'Pending' },
-    rating: { type: Number, default: 0 },         // <--- NEW
+    rating: { type: Number, default: 0 },
     review: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now }
 });
@@ -377,11 +313,6 @@ app.get('/api/guide-profile', async (req, res) => {
 });
 
 
-
-// ... existing imports ...
-
-
-
 // 4. UPDATE GUIDE PROFILE ROUTE (Handle Image Upload)
 app.post('/api/guide-profile', (req, res) => {
     const uploadFunc = upload.single('profileImage');
@@ -419,36 +350,6 @@ app.get('/api/guide-bookings', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// ... rest of the server code ...
-
-// In server.js
-let otpStore = {}; // Simple in-memory store (use DB for production)
-
-app.post('/api/send-verification', async (req, res) => {
-    const { email } = req.body;
-    const code = Math.floor(100000 + Math.random() * 900000);
-    
-    otpStore[email] = code; // Store on server
-
-    // ... send email logic ...
-    
-    // DO NOT send 'code' in this json
-    res.json({ success: true, message: "Code sent" }); 
-});
-
-// New Verification Route
-app.post('/api/verify-code', (req, res) => {
-    const { email, code } = req.body;
-    if (otpStore[email] && otpStore[email] == code) {
-        delete otpStore[email]; // Clear code after use
-        res.json({ success: true });
-    } else {
-        res.status(400).json({ error: "Invalid Code" });
-    }
-});
-
-// [server.js] - ADD THIS SECTION
-
 // Get Bookings for a specific Tourist (with Guide Details)
 app.get('/api/tourist-bookings', async (req, res) => {
     const { email } = req.query;
@@ -478,4 +379,11 @@ app.get('/api/tourist-bookings', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+
+app.listen(PORT, () => {
+    console.log(`Server running at https://trailbliss.onrender.com`);
+    console.log(`- Login Page:  https://trailbliss.onrender.com/log.html`);
+    console.log(`- Website:     https://trailbliss.onrender.com/tourist.html`);
 });
