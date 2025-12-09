@@ -25,8 +25,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     role: { type: String, required: true, enum: ['tourist', 'guide'] }
 });
-const User = mongoose.model('User', userSchema);
-
+// We rename the model to 'TrailBlissUser' to create a fresh collection without old errors
+const User = mongoose.model('TrailBlissUser', userSchema);
 
 const spotSchema = new mongoose.Schema({
     state: String,
