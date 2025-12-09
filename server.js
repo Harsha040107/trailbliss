@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(express.static('public'));
 
 
-mongoose.connect('mongodb://127.0.0.1:27017/trailbliss')
+mongoose.connect('mongodb+srv://TrailBliss04:Harsha04@trailbliss.6zqk71c.mongodb.net/?appName=TrailBliss')
     .then(() => console.log('✅ Connected to MongoDB'))
     .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
@@ -204,9 +204,9 @@ app.delete('/api/spots/:id', async (req, res) => {
 
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-    console.log(`- Login Page:  http://localhost:${PORT}/log.html`);
-    console.log(`- Website:     http://localhost:${PORT}/tourist.html`);
+    console.log(`Server running at https://trailbliss-project.onrender.com:${PORT}`);
+    console.log(`- Login Page:  https://trailbliss-project.onrender.com:${PORT}/log.html`);
+    console.log(`- Website:     https://trailbliss-project.onrender.com:${PORT}/tourist.html`);
 });
 
 const nodemailer = require('nodemailer');
