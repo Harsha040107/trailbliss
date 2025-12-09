@@ -13,7 +13,6 @@ const backgroundWrapper = document.getElementById('backgroundImageWrapper');
 let currentSlideIndex = 0;
 
 function initializeBackgrounds() {
-    // Safety check: if wrapper doesn't exist, stop to prevent error
     if (!backgroundWrapper) return; 
 
     indianHeritageImages.forEach((url, index) => {
@@ -33,7 +32,6 @@ function rotateBackgroundImages() {
     slides[currentSlideIndex].classList.add('visibleSlide');
 }
 
-// Start the slideshow
 initializeBackgrounds();
 setInterval(rotateBackgroundImages, 5000);
 
@@ -64,12 +62,11 @@ async function handleLogin(event, role) {
     event.preventDefault(); 
 
     const form = event.target;
-    // Robust selection for email input
     const email = form.querySelector('input[type="email"], input[type="text"]').value;
     const password = form.querySelector('input[type="password"]').value;
 
-    // Use your live Render URL
-    const API_URL = 'https://trailbliss.onrender.com/api/login';
+    // FIX: Use relative path
+    const API_URL = '/api/login';
 
     try {
         const response = await fetch(API_URL, {
@@ -82,7 +79,7 @@ async function handleLogin(event, role) {
 
         if (response.ok) {
             alert('Login Successful!');
-            localStorage.setItem('userEmail', email); // Save email for dashboard use
+            localStorage.setItem('userEmail', email); 
        
             if (role === 'tourist') {
                 window.location.href = "tourist.html";
@@ -98,6 +95,5 @@ async function handleLogin(event, role) {
     }
 }
 
-// Only add listeners if the elements exist (prevents errors on other pages)
 if (touristForm) touristForm.addEventListener('submit', (e) => handleLogin(e, 'tourist'));
 if (guideForm) guideForm.addEventListener('submit', (e) => handleLogin(e, 'guide'));
