@@ -57,7 +57,7 @@ function setRole(roleName) {
 
 
 // ==========================================
-// 3. NEW FORM HANDLING WITH VERIFICATION (REPLACED)
+// 3. NEW FORM HANDLING (VERIFICATION REMOVED)
 // ==========================================
 document.getElementById('my-signup-form').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -67,57 +67,28 @@ document.getElementById('my-signup-form').addEventListener('submit', async funct
     const submitBtn = document.querySelector('.submit-button');
     const originalBtnText = submitBtn.innerText;
 
-    // 1. Notify user we are checking
-    submitBtn.innerText = "Verifying Email...";
+    // 1. Notify user we are processing
+    submitBtn.innerText = "Creating Account...";
     submitBtn.disabled = true;
 
-    try {
-        // 2. Request OTP Code from Server
-        const response = await fetch('https://trailbliss.onrender.com/api/send-verification', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: emailValue })
-        });
+    // 2. Direct Registration (No OTP Check)
+    await registerUser(emailValue, passwordValue, selectedRole);
 
-        const data = await response.json();
-
-        if (data.success) {
-            // 3. Ask user for the code
-            // (Note: In a real app, you would show a nice input modal, but prompt works for now)
-            const userCode = prompt(`We sent a code to ${emailValue}. Please enter it below:`);
-            
-            // 4. Verify Code
-            // Note: data.code comes from server as a number, userCode is a string
-            if (userCode && userCode == data.code) {
-                // Code matches! Now actually register the user
-                await registerUser(emailValue, passwordValue, selectedRole);
-            } else {
-                alert("Incorrect code or cancelled. Please try again.");
-                submitBtn.innerText = originalBtnText;
-                submitBtn.disabled = false;
-            }
-        } else {
-            // Email likely invalid or server error
-            alert("Verification Failed: " + (data.error || "Unknown error"));
-            submitBtn.innerText = originalBtnText;
-            submitBtn.disabled = false;
-        }
-
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Could not connect to verify email. Is the server running?");
-        submitBtn.innerText = originalBtnText;
-        submitBtn.disabled = false;
-    }
+    submitBtn.innerText = originalBtnText;
+    submitBtn.disabled = false;
 });
 
 
 // ==========================================
-// 4. FINAL REGISTRATION HELPER (NEW)
+// 4. REGISTRATION FUNCTION
 // ==========================================
 async function registerUser(email, password, role) {
+    // NOTE: Ensure this URL matches your actual live server URL
+    // If testing locally, use http://localhost:3000/api/register
+    const API_URL = 'https://trailbliss.onrender.com/api/register'; 
+
     try {
-        const response = await fetch('https://trailbliss.onrender.com/api/register', {
+        const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, role })
@@ -126,13 +97,13 @@ async function registerUser(email, password, role) {
         const result = await response.json();
 
         if (response.ok) {
-            alert("Success! Account created and verified.");
+            alert("Success! Account created.");
             window.location.href = 'log.html';
         } else {
-            alert("Registration Error: " + result.error);
+            alert("Registration Error: " + (result.error || "Unknown Error"));
         }
     } catch (error) {
         console.error("Registration failed:", error);
-        alert("Final registration failed.");
+        alert("Could not connect to the server.");
     }
 }
