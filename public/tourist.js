@@ -1,5 +1,5 @@
 // --- GLOBAL VARIABLES ---
-const API_URL = 'http://localhost:3000/api/spots';
+const API_URL = 'https://trailbliss.onrender.com/api/spots';
 let map; // Leaflet map instance
 let currentSpotLat = 0;
 let currentSpotLng = 0;
