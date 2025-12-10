@@ -80,6 +80,8 @@ async function loadTouristPage() {
 
 // --- 3. MODAL & TOGGLE LOGIC ---
 
+// --- 3. MODAL & TOGGLE LOGIC ---
+
 async function openModal(name, desc, lat, lng) {
     const modal = document.getElementById('detailsModal');
     if (!modal) return; 
@@ -88,6 +90,14 @@ async function openModal(name, desc, lat, lng) {
     document.getElementById('modalTitle').innerText = name;
     document.getElementById('modalDesc').innerText = desc;
     document.getElementById('bookSpotName').value = name;
+
+    // --- NEW CODE START: RESTRICT DATES ---
+    const dateInput = document.getElementById('bookDate');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+    }
+    // --- NEW CODE END ---
 
     currentSpotLat = lat;
     currentSpotLng = lng;
@@ -424,6 +434,8 @@ if (hamburger) {
 
 // --- 8. MY BOOKINGS LOGIC ---
 
+// --- 8. MY BOOKINGS LOGIC ---
+
 async function openMyBookings() {
     let userEmail = document.getElementById('bookUserEmail').value || localStorage.getItem('userEmail');
     if (!userEmail) {
@@ -442,7 +454,7 @@ async function openMyBookings() {
         const res = await fetch(`/api/tourist-bookings?email=${userEmail}`);
         const bookings = await res.json();
 
-        if (bookings.length === 0) {
+        if (!bookings || bookings.length === 0) {
             listContainer.innerHTML = '<p style="text-align:center;">No booking requests found.</p>';
             return;
         }
@@ -450,25 +462,32 @@ async function openMyBookings() {
         listContainer.innerHTML = ''; 
 
         bookings.forEach(b => {
-            let statusColor = '#f39c12'; 
-            if(b.status === 'Accepted') statusColor = '#27ae60';
-            if(b.status === 'Rejected') statusColor = '#c0392b';
-            if(b.status === 'Completed') statusColor = '#2980b9'; 
+            // Explicitly define colors for all statuses
+            let statusColor = '#f39c12'; // Default Orange (Pending)
+            let statusText = b.status || 'Pending'; // Default text if missing
+
+            if (statusText === 'Accepted') statusColor = '#27ae60'; // Green
+            else if (statusText === 'Rejected') statusColor = '#c0392b'; // Red
+            else if (statusText === 'Completed') statusColor = '#2980b9'; // Blue
+            else if (statusText === 'Pending') statusColor = '#f39c12'; // Orange
 
             const cardHTML = `
                 <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid ${statusColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                     <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
                         <strong>${b.spotName}</strong>
-                        <span style="background:${statusColor}; color:white; padding:2px 8px; border-radius:10px; font-size:0.8rem;">${b.status}</span>
+                        <span style="background:${statusColor}; color:white; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:bold;">${statusText}</span>
                     </div>
                     
                     <div style="font-size: 0.9rem; color: #555;">
                         <p>Date: ${b.date}</p>
-                        <p>Guide: ${b.guideName}</p>
-                        ${b.status === 'Accepted' || b.status === 'Completed' ? `<p>📞 ${b.guideContact}</p>` : ''}
+                        <p>Guide: ${b.guideName || 'Not assigned'}</p>
+                        
+                        ${(statusText === 'Accepted' || statusText === 'Completed') 
+                            ? `<p>📞 ${b.guideContact || 'No contact info'}</p>` 
+                            : ''}
                     </div>
 
-                    ${b.status === 'Accepted' ? `
+                    ${statusText === 'Accepted' ? `
                         <div style="margin-top:10px; text-align:right;">
                             <button onclick="openCompletionModal('${b._id}')" style="background:#27ae60; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">
                                 <i class="fa-solid fa-check"></i> Mark Completed
@@ -476,9 +495,9 @@ async function openMyBookings() {
                         </div>
                     ` : ''}
 
-                    ${b.status === 'Completed' ? `
+                    ${statusText === 'Completed' ? `
                         <div style="margin-top:10px; padding-top:5px; border-top:1px dashed #ccc; font-size:0.9rem; color:#2980b9;">
-                            <strong>Your Rating:</strong> ${'★'.repeat(b.rating)}
+                            <strong>Your Rating:</strong> ${'★'.repeat(b.rating || 5)}
                         </div>
                     ` : ''}
                 </div>
@@ -486,7 +505,10 @@ async function openMyBookings() {
             listContainer.innerHTML += cardHTML;
         });
 
-    } catch (error) { console.error(error); }
+    } catch (error) { 
+        console.error(error); 
+        listContainer.innerHTML = '<p style="text-align:center; color:red;">Error loading bookings.</p>';
+    }
 }
 
 function openCompletionModal(bookingId) {
