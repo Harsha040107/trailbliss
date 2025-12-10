@@ -16,6 +16,8 @@
     "express": "^5.1.0",
     "mongoose": "^9.0.0",
     "multer": "^2.0.2",
-    "nodemailer": "^7.0.11"
+    "nodemailer": "^7.0.11",
+    "cloudinary": "^1.41.0",
+    "multer-storage-cloudinary": "^4.0.0"
   }
 }
