@@ -78,9 +78,9 @@ const Booking = mongoose.model('Booking', bookingSchema);
 // --- CLOUDINARY CONFIGURATION ---
 // IMPORTANT: Replace these with your actual keys from Cloudinary Dashboard
 cloudinary.config({
-    cloud_name: process.env.CLOUD_NAME || 'YOUR_TvLOUD_NAME', 
-    api_key: process.env.CLOUD_API_KEY || 'YOUR_API_KEY', 
-    api_secret: process.env.CLOUD_API_SECRET || 'YOUR_API_SECRET'
+    cloud_name: process.env.CLOUD_NAME || 'dvcn1fr7o', 
+    api_key: process.env.CLOUD_API_KEY || '964939665952476', 
+    api_secret: process.env.CLOUD_API_SECRET || 'g8eq8NuD8_a1yqbwonHt7PkEm3k'
 });
 
 const storage = new CloudinaryStorage({
