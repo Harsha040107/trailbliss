@@ -127,7 +127,7 @@ async function fetchWeatherAndSafety(lat, lng) {
     safetyBadge.innerText = 'Checking...';
 
     // Safety Check: API Key
-    if (WEATHER_API_KEY === 'c2dcd828d75bb9cba273a96c9ba45cb7') {
+    if (!WEATHER_API_KEY || WEATHER_API_KEY === 'YOUR_OPENWEATHER_API_KEY') {
         descEl.innerText = 'API Key Missing';
         return;
     }
