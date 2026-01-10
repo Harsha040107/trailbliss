@@ -108,9 +108,8 @@ async function openModal(name, desc, lat, lng) {
     setTimeout(() => {
         if (map) map.invalidateSize();
     }, 200);
-}
 
-// 3. New Function to Fetch Weather & Determine Safety
+    // 3. New Function to Fetch Weather & Determine Safety
 async function fetchWeatherAndSafety(lat, lng) {
     const container = document.getElementById('weatherSafetyContainer');
     const iconEl = document.getElementById('weatherIcon');
@@ -176,6 +175,9 @@ async function fetchWeatherAndSafety(lat, lng) {
         descEl.innerText = 'Offline';
     }
 }
+
+}
+
 
 function closeModal() {
     document.getElementById('detailsModal').style.display = 'none';
