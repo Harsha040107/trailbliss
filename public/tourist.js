@@ -1,5 +1,4 @@
 // --- GLOBAL VARIABLES ---
-// FIX: Relative Path
 const API_URL = '/api/spots'; 
 let map; 
 let currentSpotLat = 0;
@@ -17,7 +16,7 @@ async function fetchSpots() {
     }
 }
 
-// --- 2. LOAD TOURIST PAGE (Fixed Quote Issue) ---
+// --- 2. LOAD TOURIST PAGE ---
 async function loadTouristPage() {
     const spots = await fetchSpots();
     document.querySelectorAll('.tourist-places-grid').forEach(grid => grid.innerHTML = '');
@@ -76,9 +75,10 @@ async function loadTouristPage() {
     if (typeof filterSelection === 'function') {
         filterSelection('all');
     }
-}
 
-// --- 3. MODAL & TOGGLE LOGIC ---
+    // --- NEW: Initialize Carousel Buttons after loading data ---
+    initializeCarousels();
+}
 
 // --- 3. MODAL & TOGGLE LOGIC ---
 
@@ -91,13 +91,12 @@ async function openModal(name, desc, lat, lng) {
     document.getElementById('modalDesc').innerText = desc;
     document.getElementById('bookSpotName').value = name;
 
-    // --- NEW CODE START: RESTRICT DATES ---
+    // --- RESTRICT DATES ---
     const dateInput = document.getElementById('bookDate');
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
         dateInput.setAttribute('min', today);
     }
-    // --- NEW CODE END ---
 
     currentSpotLat = lat;
     currentSpotLng = lng;
@@ -128,7 +127,7 @@ function toggleGuideMode(mode) {
         btnOffline.style.color = 'black';
 
         mapContainer.style.display = 'block';
-        bookingForm.style.display = 'none'; // This hides the booking form until they click 'Offline'
+        bookingForm.style.display = 'none'; 
 
         loadMap();
     } else {
@@ -138,7 +137,7 @@ function toggleGuideMode(mode) {
         btnOnline.style.color = 'black';
 
         mapContainer.style.display = 'none';
-        bookingForm.style.display = 'block'; // This Shows the booking form
+        bookingForm.style.display = 'block'; 
 
         loadGuidesDropdown();
     }
@@ -176,10 +175,9 @@ function loadMap() {
                 .bindPopup(`<b>${document.getElementById('modalTitle').innerText}</b>`)
                 .openPopup();
 
-            // FIX: Corrected Google Maps Link syntax (Added $)
             const googleLink = document.getElementById('googleMapsLink');
             if (googleLink) {
-                googleLink.href = `https://www.google.com/maps?q=${currentSpotLat},${currentSpotLng}`;
+                googleLink.href = `http://maps.google.com/maps?q=${currentSpotLat},${currentSpotLng}`;
             }
 
             map.invalidateSize();
@@ -362,6 +360,39 @@ async function deleteSpot(id) {
 
 // --- 7. UTILS & EVENT LISTENERS ---
 
+// --- NEW FUNCTION: Initializes Carousel Arrows ---
+function initializeCarousels() {
+    const wrappers = document.querySelectorAll('.places-wrapper');
+
+    wrappers.forEach(wrapper => {
+        if (wrapper.querySelector('.carousel-btn')) return; // Prevent duplicates
+
+        // Create Left Button
+        const leftBtn = document.createElement('button');
+        leftBtn.className = 'carousel-btn left-btn';
+        leftBtn.innerHTML = '<i class="fa-solid fa-chevron-left"></i>';
+        
+        // Create Right Button
+        const rightBtn = document.createElement('button');
+        rightBtn.className = 'carousel-btn right-btn';
+        rightBtn.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+
+        wrapper.appendChild(leftBtn);
+        wrapper.appendChild(rightBtn);
+
+        const grid = wrapper.querySelector('.tourist-places-grid');
+
+        // Scroll Logic
+        leftBtn.addEventListener('click', () => {
+            grid.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+
+        rightBtn.addEventListener('click', () => {
+            grid.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+    });
+}
+
 function filterSelection(category) {
     const allButtons = document.querySelectorAll('.category-filter-button');
     allButtons.forEach(btn => {
@@ -434,8 +465,6 @@ if (hamburger) {
 
 // --- 8. MY BOOKINGS LOGIC ---
 
-// --- 8. MY BOOKINGS LOGIC ---
-
 async function openMyBookings() {
     let userEmail = document.getElementById('bookUserEmail').value || localStorage.getItem('userEmail');
     if (!userEmail) {
@@ -462,14 +491,12 @@ async function openMyBookings() {
         listContainer.innerHTML = ''; 
 
         bookings.forEach(b => {
-            // Explicitly define colors for all statuses
             let statusColor = '#f39c12'; // Default Orange (Pending)
-            let statusText = b.status || 'Pending'; // Default text if missing
+            let statusText = b.status || 'Pending'; 
 
             if (statusText === 'Accepted') statusColor = '#27ae60'; // Green
             else if (statusText === 'Rejected') statusColor = '#c0392b'; // Red
             else if (statusText === 'Completed') statusColor = '#2980b9'; // Blue
-            else if (statusText === 'Pending') statusColor = '#f39c12'; // Orange
 
             const cardHTML = `
                 <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid ${statusColor}; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
