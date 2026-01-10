@@ -472,3 +472,8 @@ h1, h2, h3 {
     background-color: #c0392b;
     color: white;
 }
+
+/* Update in tourist.css */
+.modal-overlay {
+    z-index: 2000; /* Ensure this is higher than Leaflet (usually 400-1000) and Navbar */
+}
