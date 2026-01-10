@@ -126,11 +126,7 @@ async function fetchWeatherAndSafety(lat, lng) {
     safetyBadge.style.background = '#ddd';
     safetyBadge.innerText = 'Checking...';
 
-    // Safety Check: API Key
-    if (!WEATHER_API_KEY || WEATHER_API_KEY === 'YOUR_OPENWEATHER_API_KEY') {
-        descEl.innerText = 'API Key Missing';
-        return;
-    }
+  
 
     try {
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${WEATHER_API_KEY}`;
