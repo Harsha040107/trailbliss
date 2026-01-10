@@ -4,7 +4,7 @@ let map;
 let currentSpotLat = 0;
 let currentSpotLng = 0;
 let availableGuides = []; 
-
+const WEATHER_API_KEY = 'c2dcd828d75bb9cba273a96c9ba45cb7';
 // --- 1. DATA FETCHING ---
 async function fetchSpots() {
     try {
@@ -108,6 +108,77 @@ async function openModal(name, desc, lat, lng) {
     setTimeout(() => {
         if (map) map.invalidateSize();
     }, 200);
+}
+
+// 3. New Function to Fetch Weather & Determine Safety
+async function fetchWeatherAndSafety(lat, lng) {
+    const container = document.getElementById('weatherSafetyContainer');
+    const iconEl = document.getElementById('weatherIcon');
+    const tempEl = document.getElementById('weatherTemp');
+    const descEl = document.getElementById('weatherDesc');
+    const safetyBadge = document.getElementById('safetyBadge');
+
+    // Reset UI before loading
+    container.style.display = 'flex';
+    tempEl.innerText = '--°C';
+    descEl.innerText = 'Loading...';
+    safetyBadge.className = 'safety-status'; 
+    safetyBadge.style.background = '#ddd';
+    safetyBadge.innerText = 'Checking...';
+
+    // Safety Check: API Key
+    if (WEATHER_API_KEY === 'c2dcd828d75bb9cba273a96c9ba45cb7') {
+        descEl.innerText = 'API Key Missing';
+        return;
+    }
+
+    try {
+        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${WEATHER_API_KEY}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.cod === 200) {
+            // Update Weather Details
+            const temp = Math.round(data.main.temp);
+            const desc = data.weather[0].description;
+            const iconCode = data.weather[0].icon;
+            const weatherId = data.weather[0].id; 
+
+            tempEl.innerText = `${temp}°C`;
+            descEl.innerText = desc;
+            iconEl.innerHTML = `<img src="https://openweathermap.org/img/wn/${iconCode}.png" alt="Weather">`;
+
+            // --- SAFETY LOGIC ---
+            let safetyStatus = "Safe to Visit";
+            let safetyClass = "safety-safe";
+
+            if (weatherId >= 200 && weatherId <= 232) {
+                safetyStatus = "⚠️ Storm Alert";
+                safetyClass = "safety-danger";
+            } else if (weatherId >= 502 && weatherId <= 531) {
+                safetyStatus = "⚠️ Heavy Rain";
+                safetyClass = "safety-caution";
+            } else if (weatherId >= 600 && weatherId <= 622) {
+                safetyStatus = "❄️ Heavy Snow";
+                safetyClass = "safety-caution";
+            } else if (temp > 42) {
+                safetyStatus = "🔥 Extreme Heat";
+                safetyClass = "safety-caution";
+            } else {
+                safetyStatus = "✅ Safe Condition";
+                safetyClass = "safety-safe";
+            }
+
+            safetyBadge.innerText = safetyStatus;
+            safetyBadge.className = `safety-status ${safetyClass}`;
+
+        } else {
+            descEl.innerText = 'Unavailable';
+        }
+    } catch (error) {
+        console.error("Weather Error:", error);
+        descEl.innerText = 'Offline';
+    }
 }
 
 function closeModal() {
